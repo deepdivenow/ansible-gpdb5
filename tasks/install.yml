@@ -19,6 +19,17 @@
   user: name=gpadmin comment='Greenplum Admin' createhome=yes shell=/bin/bash generate_ssh_key=yes groups=gpadmin append=yes state=present
   changed_when: False
 
+- name: Stop and disable iptables
+  service: name=firewalld state=stopped enabled=no
+  changed_when: False
+
+- name: Disable selinux
+  lineinfile: dest=/etc/selinux/config regexp='^SELINUX=' line='SELINUX=disabled' state=present
+  selinux: state=disabled
+#  notify:
+#    - restart system
+#    - waiting for server to come back after reboot
+
 - name: Modify /etc/sysctl.conf
   lineinfile:
     dest: /etc/sysctl.conf
