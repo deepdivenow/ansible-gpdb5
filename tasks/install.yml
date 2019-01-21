@@ -21,14 +21,28 @@
 
 - name: Stop and disable iptables
   service: name=firewalld state=stopped enabled=no
-  changed_when: False
+  ignore_errors: True
 
-- name: Disable selinux
-  lineinfile: dest=/etc/selinux/config regexp='^SELINUX=' line='SELINUX=disabled' state=present
+- name: Disable SELinux
   selinux: state=disabled
-#  notify:
-#    - restart system
-#    - waiting for server to come back after reboot
+  ignore_errors: True
+  notify:
+    - restart system
+    - waiting for server to come back after reboot
+
+- name: Security limits
+  template:
+    src=security_limits.conf.j2
+    dest=/etc/security/limits.d/95-gpdb.conf
+  notify:
+    - restart system
+    - waiting for server to come back after reboot
+
+- name: Set SUID permission on ping utility
+  file:
+    path: /bin/ping
+    mode: 4755
+  ignore_errors: True
 
 - name: Modify /etc/sysctl.conf
   lineinfile:
@@ -123,6 +137,8 @@
   with_items:
     - hostfile_gpinitsystem
     - gpinitsystem_config
+
+- meta: flush_handlers
 
 - name: Init cluster
   shell: . /usr/lib/gpdb/greenplum_path.sh && /usr/lib/gpdb/bin/gpinitsystem -a -c gpinitsystem_config -h hostfile_gpinitsystem
