@@ -23,8 +23,8 @@
   service: name=firewalld state=stopped enabled=no
   ignore_errors: True
 
-- name: Disable SELinux
-  selinux: state=disabled
+- name: Disable selinux
+  lineinfile: dest=/etc/selinux/config regexp='^SELINUX=' line='SELINUX=disabled' state=present
   ignore_errors: True
   notify:
     - restart system
@@ -41,7 +41,7 @@
 - name: Set SUID permission on ping utility
   file:
     path: /bin/ping
-    mode: 4755
+    mode: 04755
   ignore_errors: True
 
 - name: Modify /etc/sysctl.conf
