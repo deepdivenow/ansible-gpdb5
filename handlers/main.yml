@@ -1,0 +1,5 @@
+---
+
+- name: reload sysctl
+  shell: /sbin/sysctl -p /etc/sysctl.conf
+
