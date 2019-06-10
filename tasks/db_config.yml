@@ -1,5 +1,4 @@
 ---
-
 - name: GreenPlum | Make sure users are present
   postgresql_user:
     name: "{{item.name}}"
@@ -20,8 +19,6 @@
     name: "{{item.name}}"
     owner: "{{ item.owner | default(greenplum_database_owner) }}"
     encoding: "{{ item.encoding | default(greenplum_encoding) }}"
-    lc_collate: "{{ item.lc_collate | default(greenplum_locale) }}"
-    lc_ctype: "{{ item.lc_ctype | default(greenplum_ctype) }}"
     port: "{{greenplum_port}}"
     template: "template0"
     state: present
@@ -31,8 +28,7 @@
   become_user: "{{greenplum_admin_user}}"
   with_items: "{{greenplum_databases}}"
   when: greenplum_databases|length > 0
-  
-  
+
 - name: GreenPlum | Update the user privileges
   postgresql_user:
     name: "{{item.name}}"

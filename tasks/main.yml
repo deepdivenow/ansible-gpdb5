@@ -15,3 +15,7 @@
   when: inventory_hostname in groups['greenplum-master']
   run_once: True
   tags: [greenplum,greenplum-db-configure]
+
+- import_tasks: initdb.yml
+  when: greenplum_init_db
+  tags: [greenplum,greenplum-initdb]
