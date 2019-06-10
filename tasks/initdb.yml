@@ -1,31 +1,27 @@
 ---
 - name: GreenPlum | Add postgis to the databases with the requirement
-  become: yes
-  become_user: "{{postgresql_service_user}}"
+  become_user: "{{greenplum_admin_user}}"
   shell: "{{ greenplum_bin_directory }}/psql {{item.name}} --username {{greenplum_admin_user}} -f /usr/lib/gpdb/share/postgresql/contrib/postgis-{{ greenplum_postgis_version }}/install/postgis.sql"
-  with_items: "{{greenplum_databases}}"
   when: item.gis is defined and item.gis
 
 - name: GreenPlum | Add postgis to the databases with the requirement 2
-  become: yes
-  become_user: "{{postgresql_service_user}}"
+  become_user: "{{greenplum_admin_user}}"
   shell: "{{ greenplum_bin_directory }}/psql {{item.name}} --username {{greenplum_admin_user}} -c 'GRANT ALL ON geometry_columns,geography_columns,spatial_ref_sys TO PUBLIC;'"
-  with_items: "{{greenplum_databases}}"
   when: item.gis is defined and item.gis
 
-- block:
-  - file:
-      src: "{{ item.init_schema_file }}"
-      dest: "/tmp/{{ item.init_schema_file | basename}}"
+- copy:
+    src: "{{ item.init_schema_file }}"
+    dest: "/tmp/{{ item.init_schema_file | basename}}"
+  when: item.init_schema_file is defined and item.init_schema is defined and item.init_schema
+  become_user: "{{greenplum_admin_user}}"
 
-  - name: GreenPlum | Add postgis to the databases with the requirement 2
-    become: yes
-    become_user: "{{postgresql_service_user}}"
-    shell: "{{ greenplum_bin_directory }}/psql {{item.name}} --username {{greenplum_admin_user}} -f /tmp/{{ item.init_schema_file | basename}}"
+- name: GreenPlum | Init database schema
+  become_user: "{{greenplum_admin_user}}"
+  shell: "{{ greenplum_bin_directory }}/psql {{item.name}} --username {{greenplum_admin_user}} -f /tmp/{{ item.init_schema_file | basename}}"
+  when: item.init_schema_file is defined and item.init_schema is defined and item.init_schema
 
-  - file:
-      dest: "/tmp/{{ item.init_schema_file | basename}}"
-      state: absent
-
-  with_items: "{{greenplum_databases}}"
-  when: item.init_schema_file is defined and item.init_schema  is defined and item.init_schema
+- file:
+    dest: "/tmp/{{ item.init_schema_file | basename}}"
+    state: absent
+  when: item.init_schema_file is defined and item.init_schema is defined and item.init_schema
+  become_user: "{{greenplum_admin_user}}"

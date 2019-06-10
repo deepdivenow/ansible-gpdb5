@@ -16,6 +16,14 @@
   run_once: True
   tags: [greenplum,greenplum-db-configure]
 
-- import_tasks: initdb.yml
-  when: greenplum_init_db
+
+- include_tasks: initdb.yml
+  loop: "{{ greenplum_databases }}"
+  when: greenplum_init_db and greenplum_databases | length > 1
   tags: [greenplum,greenplum-initdb]
+
+#
+#
+#- import_tasks: initdb.yml
+#  when: greenplum_init_db
+#  tags: [greenplum,greenplum-initdb]

@@ -15,7 +15,7 @@
   when: greenplum_users|length > 0
 
 - name: GreenPlum | Make sure databases are present
-  postgresql_db:
+  greenplum_db:
     name: "{{item.name}}"
     owner: "{{ item.owner | default(greenplum_database_owner) }}"
     encoding: "{{ item.encoding | default(greenplum_encoding) }}"
