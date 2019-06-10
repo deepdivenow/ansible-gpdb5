@@ -1,0 +1,11 @@
+- name: Add ADB Dist REPO
+  yum_repository:
+    name: "{{ greenplum_version }}_centos7"
+    description: ADB repository (dist)
+    baseurl: "https://storage.googleapis.com/arenadata-repo/ADB/{{ greenplum_version }}/centos7"
+    gpgcheck: no
+
+- name: Install packages
+  yum:
+    name: gpdb
+    state: present

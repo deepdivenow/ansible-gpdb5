@@ -1,3 +1,5 @@
 ---
 greenplum_init: False
 greenplum_reboot: False
+greenplum_version: "ADB_5_15_1_arenadata4"
+greenplum_packages: [gpdb]
