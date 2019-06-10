@@ -6,6 +6,7 @@
     gpgcheck: no
 
 - name: Install packages
-  yum:
-    name: gpdb
-    state: present
+  yum: name="{{greenplum_packages}}" state=present
+
+- name: Install req for configure db
+  yum: name=python-psycopg2 state=present

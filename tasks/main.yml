@@ -7,20 +7,11 @@
 - import_tasks: configure.yml
   tags: [greenplum,greenplum-configure]
 
-- name: Set hostnames from ansible playbook
-  hostname: name="{{ inventory_hostname }}"
+- import_tasks: init.yml
   when: greenplum_init
   tags: [greenplum,greenplum-init]
 
-- name: Init cluster
-  shell: . /usr/lib/gpdb/greenplum_path.sh && /usr/lib/gpdb/bin/gpinitsystem -a -c gpinitsystem_config -h hostfile_gpinitsystem
-  args:
-    executable: /bin/bash
-    chdir: ~gpadmin
-  become_user: gpadmin
-  register: init_script
-  failed_when: init_script.rc > 1
-  any_errors_fatal: true
-  when: inventory_hostname in groups['greenplum-master'] and greenplum_init
-  tags: [greenplum,greenplum-init]
-
+- import_tasks: db_config.yml
+  when: inventory_hostname in groups['greenplum-master']
+  run_once: True
+  tags: [greenplum,greenplum-db-configure]
