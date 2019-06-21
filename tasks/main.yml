@@ -16,6 +16,7 @@
   run_once: True
   tags: [greenplum,greenplum-db-configure]
 
+- meta: flush_handlers
 
 - include_tasks: initdb.yml
   loop: "{{ greenplum_databases }}"

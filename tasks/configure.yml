@@ -60,21 +60,44 @@
     - { regexp: '^net.core.rmem_max', line: 'net.core.rmem_max = 2097152', state: present }
     - { regexp: '^net.core.wmem_max', line: 'net.core.wmem_max = 2097152', state: present }
     - { regexp: '^vm.overcommit_memory', line: 'vm.overcommit_memory = 2', state: present }
-#  notify:
-#    - reload sysctl
+  notify:
+    - reload sysctl
 
-- name: Register master key
+- name: Register public master key
   command: |
     cat ~gpadmin/.ssh/id_rsa.pub
   changed_when: False
   delegate_to: "{{ groups['greenplum-master'][0] }}"
   register: pubkey
 
+- name: Register private master key
+  command: |
+    cat ~gpadmin/.ssh/id_rsa
+  changed_when: False
+  delegate_to: "{{ groups['greenplum-master'][0] }}"
+  register: privkey
+
 - name: Add Master key on All nodes
   authorized_key:
     user: gpadmin
     state: present
     key: "{{ pubkey.stdout }}"
+
+- name: Set master pubkey
+  copy:
+    content: "{{ pubkey.stdout }}"
+    dest: ~gpadmin/.ssh/id_rsa.pub
+    mode: 0600
+  become_user: gpadmin
+  when:  inventory_hostname in groups['greenplum-workers']
+
+- name: Set master privkey
+  copy:
+    content: "{{ privkey.stdout }}"
+    dest: ~gpadmin/.ssh/id_rsa
+    mode: 0600
+  become_user: gpadmin
+  when:  inventory_hostname in groups['greenplum-workers']
 
 - name: get port, default 22
   delegate_to: localhost
@@ -103,6 +126,8 @@
   with_items:
   - "/data1/primary"
   - "/data2/primary"
+  - "/data1/mirror"
+  - "/data2/mirror"
 
 - name: Create data directories | Master
   file:

@@ -1,12 +1,9 @@
 - name: Add ADB Dist REPO
   yum_repository:
-    name: "{{ greenplum_version }}_centos7"
+    name: "ADB_arenadata_centos7"
     description: ADB repository (dist)
     baseurl: "https://storage.googleapis.com/arenadata-repo/ADB/{{ greenplum_version }}/centos7"
     gpgcheck: no
 
 - name: Install packages
-  yum: name="{{greenplum_packages}}" state=present
-
-- name: Install req for configure db
-  yum: name=python-psycopg2 state=present
+  yum: name="{{ greenplum_packages | union(greenplum_packages_deps) | unique }}" state=present

@@ -2,9 +2,11 @@
 greenplum_init: False
 greenplum_init_db: False
 greenplum_reboot: False
-greenplum_version: "ADB_5_15_1_arenadata4"
+greenplum_mirror_segments: False
+greenplum_version: "5.18.0_arenadata4"
 greenplum_postgis_version: 2.1
 greenplum_packages: [gpdb]
+greenplum_packages_deps: [python-psycopg2, rsync, which]
 greenplum_port: 5432
 greenplum_admin_user: gpadmin
 greenplum_users: []

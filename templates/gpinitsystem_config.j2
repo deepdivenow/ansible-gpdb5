@@ -65,6 +65,13 @@ ENCODING=UNICODE
 #### DATA_DIRECTORY parameter.
 #declare -a MIRROR_DATA_DIRECTORY=(/data1/mirror /data1/mirror /data1/mirror /data2/mirror /data2/mirror /data2/mirror)
 
+{% if greenplum_mirror_segments %}
+MIRROR_PORT_BASE=7000
+REPLICATION_PORT_BASE=8000
+MIRROR_REPLICATION_PORT_BASE=9000
+declare -a MIRROR_DATA_DIRECTORY=(/data1/mirror /data2/mirror)
+{% endif %}
+
 
 ################################################
 #### OTHER OPTIONAL PARAMETERS
