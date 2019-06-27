@@ -123,11 +123,7 @@
     owner: gpadmin
     group: gpadmin
   when: inventory_hostname in groups['greenplum-workers']
-  with_items:
-  - "/data1/primary"
-  - "/data2/primary"
-  - "/data1/mirror"
-  - "/data2/mirror"
+  with_items: "{{ greenplum_worker_paths }}"
 
 - name: Create data directories | Master
   file:

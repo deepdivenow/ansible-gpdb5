@@ -1,0 +1,34 @@
+---
+- name: Search pg_hba in Primary dirs
+  find:
+    depth: 2
+    file_type: file
+    patterns: 'pg_hba.conf'
+    paths: ['/data/master']
+    recurse: True
+  register: hba_files
+
+- name: Set hba_files_list
+  set_fact:
+    hba_files_list: "{{ hba_files['files'] | map(attribute='path') | list}}"
+  when: hba_files is defined and hba_files['files'] is defined
+
+- name: Configure pg_hba to masters
+  postgresql_pg_hba:
+    contype: "{{ item[0]['type'] }}"
+    users: "{{ item[0]['user'] }}"
+    source: "{{ item[0]['address'] }}"
+    databases: "{{ item[0]['database'] }}"
+    method: "{{ item[0]['method'] }}"
+    dest: "{{ item[1] }}"
+  with_nested:
+    - "{{ greenplum_pg_hba }}"
+    - "{{ hba_files_list }}"
+  when: hba_files_list is defined
+  register: changed_pg_hba
+  notify: reload pg_hba
+
+- name: Set hba_handler_list
+  set_fact:
+    hba_handler_list: "{{ changed_pg_hba | json_query('results[?changed].item[1]') | sort | unique }}"
+  when: changed_pg_hba is defined

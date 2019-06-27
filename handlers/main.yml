@@ -15,3 +15,10 @@
   local_action: wait_for host={{ inventory_hostname }} port=22 state=started delay=20 timeout=900
   become: no
   when: greenplum_reboot
+
+- name: reload pg_hba
+  shell: kill -HUP $(head -1 "{{ item | dirname }}/postmaster.pid")
+  when: item['changed']
+  with_items: "{{ hba_handler_list }}"
+  when: hba_handler_list is defined
+  ignore_errors: True
